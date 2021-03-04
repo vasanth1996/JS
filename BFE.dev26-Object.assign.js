@@ -1,4 +1,5 @@
-//Approach 1
+//Approach 1 - Vasanth
+
 /**
  * @param {any} target
  * @param {any[]} sources
@@ -52,4 +53,54 @@ function objectAssign(target, ...sources) {
   }
 
   return target;
+}
+
+
+//Approach 2 - Maya
+/**
+ * @param {any} target
+ * @param {any[]} sources
+ * @return {object}
+ */
+function objectAssign(target, ...sources) {
+  if (target === null || target === undefined) throw new Error();
+  target = Object(target);
+  sources.forEach(src => {
+    src = Object(src);
+
+    Object.defineProperties(target, Object.getOwnPropertyDescriptors(src));
+    let symbols = Object.getOwnPropertySymbols(src);
+    symbols.forEach(symbol => target[symbol] = src[symbol])
+  });
+  return target;
+}
+
+//Approach 3 - JSer
+/**
+ * @param {any} target
+ * @param {any[]} sources
+ * @return {object}
+ */
+function objectAssign(target, ...sources) {
+  if (target === null || target === undefined) throw new Error('invalid target')
+
+  let result = target
+  if (['number', 'string', 'boolean'].includes(typeof target)) {
+    result = Object(target)
+  }
+
+  for (const source of sources) {
+    if (source === null || source === undefined) continue
+    const keys = [
+      ...Object.keys(source),
+      ...Object.getOwnPropertySymbols(source)
+      .filter(item => Object.getOwnPropertyDescriptor(source, item).enumerable)
+    ]
+    for (const key of keys) {
+      if (!Reflect.set(result, key, source[key])) {
+        throw new Error('cannot assign to read-only properties')
+      }
+    }
+  }
+  return result
 }
